@@ -1,15 +1,49 @@
 import React, { useState } from 'react'
 import auth from "../assets/auth.jpg"
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { EyeOff, Eye } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-
+import axios from 'axios'
+import { toast } from 'sonner'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [input, setInput] = useState({
+    email: "",
+    password: ""
+  })
+  const navigate = useNavigate()
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setInput((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await axios.post(`http://localhost:8000/api/v1/user/login`, input, {
+        headers: {
+          "Content-Type": "application/json"   // ← also fixed: "application.json" → "application/json"
+        },
+        withCredentials: true
+      })
+      if (res.data.success) {
+        toast.success(res.data.message)
+        navigate('/')
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.response?.data?.message || "Login failed")
+    }
+  }
+
   return (
     <div className='flex h-screen md:pt-14 md:h-[760px]'>
       <div className='hidden md:block'>
@@ -26,7 +60,7 @@ const Login = () => {
             </p>
           </CardHeader>
           <CardContent>
-            <form className='space-y-4'>
+            <form className='space-y-4' onSubmit={handleSubmit}>
               <div>
                 <Label>Email</Label>
                 <Input
@@ -34,10 +68,11 @@ const Login = () => {
                   placeholder='Email address'
                   name='email'
                   className="dark:border-gray-600 dark:bg-gray-900"
+                  value={input.email}
+                  onChange={handleChange}
                 />
               </div>
 
-              {/* Password on its own row */}
               <div className='relative'>
                 <Label>Password</Label>
                 <Input
@@ -45,6 +80,8 @@ const Login = () => {
                   placeholder='Enter your Password'
                   name='password'
                   className="dark:border-gray-600 dark:bg-gray-900"
+                  value={input.password}
+                  onChange={handleChange}
                 />
                 <button
                   onClick={() => setShowPassword(!showPassword)}

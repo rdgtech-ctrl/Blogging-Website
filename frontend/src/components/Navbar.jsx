@@ -5,9 +5,10 @@ import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Search } from 'lucide-react'
 import { FaMoon } from 'react-icons/fa';
+import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 
 const Navbar = () => {
-    const user = false
+    const user = true
     return (
         <div className="py-2 fixed w-full dark:bg-gray-800 dark:border-b-gray-600 border-b-gray-300 border-2 bg-white z-50">
             <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-0">
@@ -38,12 +39,16 @@ const Navbar = () => {
                     <div className='flex'>
                         <Button><FaMoon /></Button>
                         {
-                            user ? <div>
-
-                                </div> : <div className='ml-7 md:flex gap-2'>
-                                    <Link to={"/login"}><Button>Login</Button></Link>
-                                    <Link className='hidden md:block' to={"/signup"}><Button>Signup</Button></Link>
-                                </div>
+                            user ? <div className='ml-7 flex gap-3 items-center'>
+                                <Avatar>
+                                    <AvatarImage src="https://github.com/shadcn.png" />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                                <Link to={"/signup"}><Button>LogOut</Button></Link>
+                            </div> : <div className='ml-7 md:flex gap-2'>
+                                <Link to={"/login"}><Button>Login</Button></Link>
+                                <Link className='hidden md:block' to={"/signup"}><Button>Signup</Button></Link>
+                            </div>
                         }
                     </div>
                 </nav>
