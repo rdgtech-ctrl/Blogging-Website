@@ -19,43 +19,19 @@ const Login = () => {
         <Card className='w-full max-w-md p-6 shadow-lg rounded-2xl dark:bg-gray-800 dark:border-gray-600'>
           <CardHeader>
             <CardTitle>
-              <h1 className="text-center text-xl font-semibold">Create an account</h1>
+              <h1 className="text-center text-xl font-semibold">Login into your account</h1>
             </CardTitle>
             <p className='mt-2 text-sm font-serif text-center dark:text-gray-300'>
-              Enter your details below to create an Account
+              Enter your details below to login your account
             </p>
           </CardHeader>
           <CardContent>
             <form className='space-y-4'>
-
-              {/* First Name and Last Name side by side */}
-              <div className='flex gap-3'>
-                <div className='flex-1'>
-                  <Label>First Name</Label>
-                  <Input
-                    type='text'
-                    placeholder='First Name'
-                    name='firstName'
-                    className="dark:border-gray-600 dark:bg-gray-900"
-                  />
-                </div>
-                <div className='flex-1'>
-                  <Label>Last Name</Label>
-                  <Input
-                    type='text'
-                    placeholder='Last Name'
-                    name='lastName'
-                    className="dark:border-gray-600 dark:bg-gray-900"
-                  />
-                </div>
-              </div>
-
-              {/* Email on its own row */}
               <div>
                 <Label>Email</Label>
                 <Input
                   type='email'
-                  placeholder='johnmartson@example.com'
+                  placeholder='Email address'
                   name='email'
                   className="dark:border-gray-600 dark:bg-gray-900"
                 />
@@ -66,7 +42,7 @@ const Login = () => {
                 <Label>Password</Label>
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder='Create a Password'
+                  placeholder='Enter your Password'
                   name='password'
                   className="dark:border-gray-600 dark:bg-gray-900"
                 />
@@ -82,10 +58,10 @@ const Login = () => {
               <Button type="submit" className="w-full">Sign Up</Button>
 
               <p className='text-center text-gray-600 dark:text-gray-300'>
-                Already have an account?{" "}
-                <Link to={"/login"}>
+                Don't have an account?{" "}
+                <Link to={"/signup"}>
                   <span className='underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-100'>
-                    Sign in
+                    Sign up
                   </span>
                 </Link>
               </p>
