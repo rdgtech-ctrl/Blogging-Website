@@ -55,7 +55,7 @@ const Login = () => {
                 </button>
               </div>
 
-              <Button type="submit" className="w-full">Sign Up</Button>
+              <Button type="submit" className="w-full">Login</Button>
 
               <p className='text-center text-gray-600 dark:text-gray-300'>
                 Don't have an account?{" "}

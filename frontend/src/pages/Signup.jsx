@@ -1,15 +1,53 @@
 import React, { useState } from 'react'
 import auth from "../assets/auth.jpg"
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { EyeOff, Eye } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
+import { Navigate } from 'react-router-dom'
+import axios from 'axios'
+
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
+  const [user, setUser] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: ""
+  })
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setUser((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    console.log(user);
+
+    try {
+      const res = await axios.post(`http://localhost:8000/api/v1/user/register`,user,{
+        headers:{
+          "Content-Type":"application/json"
+        },
+        withCredentials:true
+      })
+      if(res.data.success){
+        navigate('/login')
+        toast.success(res.data.message)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.response.data.message)
+    }
+  }
   return (
     <div className='flex h-screen md:pt-14 md:h-[760px]'>
       <div className='hidden md:block'>
@@ -26,7 +64,7 @@ const Signup = () => {
             </p>
           </CardHeader>
           <CardContent>
-            <form className='space-y-4'>
+            <form className='space-y-4' onSubmit={handleSubmit}>
 
               {/* First Name and Last Name side by side */}
               <div className='flex gap-3'>
@@ -37,6 +75,8 @@ const Signup = () => {
                     placeholder='First Name'
                     name='firstName'
                     className="dark:border-gray-600 dark:bg-gray-900"
+                    value={user.firstName}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className='flex-1'>
@@ -46,6 +86,8 @@ const Signup = () => {
                     placeholder='Last Name'
                     name='lastName'
                     className="dark:border-gray-600 dark:bg-gray-900"
+                    value={user.lastName}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -58,6 +100,8 @@ const Signup = () => {
                   placeholder='johnmartson@example.com'
                   name='email'
                   className="dark:border-gray-600 dark:bg-gray-900"
+                  value={user.email}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -69,6 +113,8 @@ const Signup = () => {
                   placeholder='Create a Password'
                   name='password'
                   className="dark:border-gray-600 dark:bg-gray-900"
+                  value={user.password}
+                  onChange={handleChange}
                 />
                 <button
                   onClick={() => setShowPassword(!showPassword)}
