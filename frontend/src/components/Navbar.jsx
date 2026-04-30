@@ -1,14 +1,43 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Logo from "../assets/logo.png"
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Search } from 'lucide-react'
-import { FaMoon } from 'react-icons/fa';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
+import { useDispatch, useSelector } from 'react-redux'
+import { toggleTheme } from '@/redux/themeSlice'
+import { Navigate } from 'react-router-dom'
+import axios from 'axios'
+import { setUser } from '@/redux/authSlice'
+import { toast } from 'sonner'
 
 const Navbar = () => {
-    const user = true
+    const { user } = useSelector(store => store.auth)
+    const { theme } = useSelector(store => store.theme)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const logoutHandler = async (e) => {
+        try {
+            const res = await axios.get(`http://localhost:8000/api/v1/user/logout`, { withCredentials: true })
+            if (res.data.success) {
+                navigate('/')
+                dispatch(setUser(null))
+                toast.success(res.data.message)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error)
+        }
+    }
+
+    useEffect(() => {
+        const root = document.documentElement
+        root.classList.remove("light", "dark")
+        root.classList.add(theme)
+    }, [theme])
     return (
         <div className="py-2 fixed w-full dark:bg-gray-800 dark:border-b-gray-600 border-b-gray-300 border-2 bg-white z-50">
             <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-0">
@@ -37,14 +66,18 @@ const Navbar = () => {
                         <Link to={'/about'}><li>About</li></Link>
                     </ul>
                     <div className='flex'>
-                        <Button><FaMoon /></Button>
+                        <Button onClick={() => dispatch(toggleTheme())}>
+                            {
+                                theme === 'light' ? <FaMoon /> : <FaSun />
+                            }
+                        </Button>
                         {
                             user ? <div className='ml-7 flex gap-3 items-center'>
                                 <Avatar>
                                     <AvatarImage src="https://github.com/shadcn.png" />
                                     <AvatarFallback>CN</AvatarFallback>
                                 </Avatar>
-                                <Link to={"/signup"}><Button>LogOut</Button></Link>
+                                <Button onClick={logoutHandler}>LogOut</Button>
                             </div> : <div className='ml-7 md:flex gap-2'>
                                 <Link to={"/login"}><Button>Login</Button></Link>
                                 <Link className='hidden md:block' to={"/signup"}><Button>Signup</Button></Link>

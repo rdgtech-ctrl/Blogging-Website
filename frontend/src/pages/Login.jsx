@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import axios from 'axios'
 import { toast } from 'sonner'
+import { useDispatch } from 'react-redux'
+import { setUser } from '@/redux/authSlice'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -16,6 +18,7 @@ const Login = () => {
     password: ""
   })
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -35,8 +38,9 @@ const Login = () => {
         withCredentials: true
       })
       if (res.data.success) {
-        toast.success(res.data.message)
+        dispatch(setUser(res.data.user))
         navigate('/')
+        toast.success(res.data.message)
       }
     } catch (error) {
       console.log(error)

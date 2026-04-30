@@ -95,7 +95,7 @@ export const login = async (req, res) => {
       .json({
         success: true,
         message: `Welcome back ${user.firstName}`,
-        user,
+        user
       });
     //maxAge: 1*24*60*60*1000 — cookie lasts 1 day (in milliseconds)
     // httpOnly: true — cookie can't be accessed by JavaScript (protects against XSS attacks)
@@ -121,3 +121,18 @@ export const logout = async (_, res) => {
     console.log(error);
   }
 };
+
+
+export const getProfile = async (req, res) => {
+  try {
+    const token = req.cookies.token
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Not authenticated" })
+    }
+    const decoded = jwt.verify(token, process.env.SECRET_KEY)
+    const user = await User.findById(decoded.userId).select("-password")
+    return res.status(200).json({ success: true, user })
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Invalid token" })
+  }
+}
