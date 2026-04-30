@@ -3,16 +3,17 @@ import auth from "../assets/auth.jpg"
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { EyeOff, Eye } from 'lucide-react'
+import { EyeOff, Eye ,Loader2} from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { useDispatch } from 'react-redux'
-import { setUser } from '@/redux/authSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLoading, setUser } from '@/redux/authSlice'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const { loading } = useSelector(store => store.auth)
   const [input, setInput] = useState({
     email: "",
     password: ""
@@ -31,9 +32,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      dispatch(setLoading(true))  // ✅ Fix 2: wrapped in dispatch
       const res = await axios.post(`http://localhost:8000/api/v1/user/login`, input, {
         headers: {
-          "Content-Type": "application/json"   // ← also fixed: "application.json" → "application/json"
+          "Content-Type": "application/json"
         },
         withCredentials: true
       })
@@ -45,6 +47,8 @@ const Login = () => {
     } catch (error) {
       console.log(error)
       toast.error(error.response?.data?.message || "Login failed")
+    } finally {
+      dispatch(setLoading(false))  
     }
   }
 
@@ -96,10 +100,19 @@ const Login = () => {
                 </button>
               </div>
 
-              <Button type="submit" className="w-full">Login</Button>
+              <Button type="submit" className="w-full">
+                {
+                  loading ? (
+                    <>
+                      <Loader2 className='mr-2 w-4 h-4 animate-spin' />  {/* ✅ Fix 1: closed quote */}
+                      Please wait
+                    </>  // ✅ Fix 3: closed fragment
+                  ) : ("Login")
+                }
+              </Button>
 
               <p className='text-center text-gray-600 dark:text-gray-300'>
-                Don't have an account?{" "}
+                Don't have an account ? {" "}
                 <Link to={"/signup"}>
                   <span className='underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-100'>
                     Sign up

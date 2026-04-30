@@ -9,11 +9,13 @@ import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
-
+import { useDispatch, useSelector } from 'react-redux'
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const {loading} = useSelector(store=>store.auth)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
@@ -33,6 +35,7 @@ const Signup = () => {
     console.log(user);
 
     try {
+      dispatch(setLoading(true))
       const res = await axios.post(`http://localhost:8000/api/v1/user/register`,user,{
         headers:{
           "Content-Type":"application/json"
@@ -46,6 +49,8 @@ const Signup = () => {
     } catch (error) {
       console.log(error)
       toast.error(error.response.data.message)
+    }finally{
+      dispatch(setLoading(false))
     }
   }
   return (
@@ -125,7 +130,18 @@ const Signup = () => {
                 </button>
               </div>
 
-              <Button type="submit" className="w-full">Sign Up</Button>
+              <Button type="submit" className="w-full">
+                {
+                  loading?(
+                    <>
+                    <Loader2 className='mr-2 w-4 h-4 animate-spin'/>
+                    Please wait
+                    </>
+                  ):(
+                    "Sign up"
+                  )
+                }
+              </Button>
 
               <p className='text-center text-gray-600 dark:text-gray-300'>
                 Already have an account?{" "}
