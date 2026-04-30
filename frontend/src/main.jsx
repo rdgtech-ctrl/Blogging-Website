@@ -10,8 +10,8 @@ import { ThemeProvider } from 'next-themes'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider store={store}>
-      <ThemeProvider>
+    <Provider store={store}> {/*makes Redux available to every component*/}
+      <ThemeProvider>{/*applies light/dark class to entire app*/}
         <App />
       </ThemeProvider>
       <Toaster />

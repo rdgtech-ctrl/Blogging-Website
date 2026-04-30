@@ -1,12 +1,13 @@
-import React, { Children } from 'react'
+import React from 'react'
 import { useSelector } from 'react-redux'
 
-const ThemeProvider = () => {
-    const {theme} = useSelector(state => state.theme)
+const ThemeProvider = ({ children }) => {  // ✅ destructure children from props
+  const { theme } = useSelector(state => state.theme)
+
   return (
     <div className={theme}>
       <div className="bg-gray-200 text-gray-800 dark:text-gray-200 dark:bg-[rgb(16,23,42)]">
-        {Children}
+        {children}  {/* ✅ render children */}
       </div>
     </div>
   )
