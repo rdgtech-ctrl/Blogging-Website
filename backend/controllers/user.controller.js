@@ -1,6 +1,8 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import getDataUri from "../utils/dataUri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
@@ -95,7 +97,7 @@ export const login = async (req, res) => {
       .json({
         success: true,
         message: `Welcome back ${user.firstName}`,
-        user
+        user,
       });
     //maxAge: 1*24*60*60*1000 — cookie lasts 1 day (in milliseconds)
     // httpOnly: true — cookie can't be accessed by JavaScript (protects against XSS attacks)
@@ -122,25 +124,74 @@ export const logout = async (_, res) => {
   }
 };
 
-
 export const getProfile = async (req, res) => {
   try {
-    const token = req.cookies.token
+    const token = req.cookies.token;
     if (!token) {
-      return res.status(401).json({ success: false, message: "Not authenticated" })
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authenticated" });
     }
-    const decoded = jwt.verify(token, process.env.SECRET_KEY)
-    const user = await User.findById(decoded.userId).select("-password")
-    return res.status(200).json({ success: true, user })
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const user = await User.findById(decoded.userId).select("-password");
+    return res.status(200).json({ success: true, user });
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Invalid token" })
+    return res.status(401).json({ success: false, message: "Invalid token" });
   }
-}
+};
 
-export const updateProfile = async (req,res) => {
+export const updateProfile = async (req, res) => {
   try {
-    
+    const userId = req.id;
+    const {
+      firstName,
+      lastName,
+      occupation,
+      bio,
+      instagram,
+      facebook,
+      linkedin,
+      github,
+    } = req.body;
+    const file = req.file;
+
+    let cloudResponse;
+    if (file) {
+      const fileUri = getDataUri(file);
+      cloudResponse = await cloudinary.uploader.upload(fileUri);
+    }
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    // updating data
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (occupation) user.occupation = occupation;
+    if (instagram) user.instagram = instagram;
+    if (facebook) user.facebook = facebook;
+    if (linkedin) user.linkedin = linkedin;
+    if (github) user.github = github;
+    if (bio) user.bio = bio;
+    if (file) user.photoUrl = cloudResponse.secure_url;
+
+    await user.save(); // Save to MongoDB
+    // without this line all the changes above are just in memory and lost.This actually writes to the database.
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      success: true,
+      // sends response to frontend or sends the updated user object back so the frontend can update the UI.
+      user,
+    });
   } catch (error) {
-    
-  }h
-}
+    return res.status(500).json({
+      message: "Failed to update profile",
+      success: false,
+    });
+  }
+};

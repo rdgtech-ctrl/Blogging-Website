@@ -2,7 +2,7 @@ import React from 'react'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import userLogo from "../assets/user.jpg"
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { FaFacebook, FaGithub, FaInstagram, FaLinkedin } from 'react-icons/fa'
 import { Label } from '@/components/ui/label'
 import { Textarea } from "@/components/ui/textarea"
@@ -18,7 +18,9 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { useSelector } from 'react-redux'
 const Profile = () => {
+    const {user} = useSelector(store => store.auth)
     return (
         <div className='pt-20 md:ml-[320px] md:h-screen'>
             <div className='max-w-6xl mx-auto mt-8'>
@@ -38,7 +40,7 @@ const Profile = () => {
                     </div>
                     {/* info section */}
                     <div>
-                        <h1 className="font-bold text-center md:text-start text-4xl mb-7">Welcome User !</h1>
+                        <h1 className="font-bold text-center md:text-start text-4xl mb-7">Welcome {user.firstName || "User"} !</h1>
                         <p><span className='font-semibold'>Email :</span>dishagupta@gmail.com</p>
                         <div className='flex flex-col gap-2 items-start justify-start my-5'>
                             <Label>About me</Label>
