@@ -1,17 +1,33 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from "../assets/logo.png"
+import userLogo from "../assets/user.jpg"
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { Search } from 'lucide-react'
-import { FaMoon, FaSun } from 'react-icons/fa';
+import {
+    ChartColumnBig,
+    LogOut,
+    Search,
+    User,
+} from "lucide-react"
+import { FaMoon, FaSun, FaRegEdit } from 'react-icons/fa';  // ✅ Added FaRegEdit
+import { LiaCommentSolid } from 'react-icons/lia';           // ✅ Added LiaCommentSolid
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleTheme } from '@/redux/themeSlice'
-import { Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { setUser } from '@/redux/authSlice'
 import { toast } from 'sonner'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const Navbar = () => {
     const { user } = useSelector(store => store.auth)
@@ -38,6 +54,7 @@ const Navbar = () => {
         root.classList.remove("light", "dark")
         root.classList.add(theme)
     }, [theme])
+
     return (
         <div className="py-2 fixed w-full dark:bg-gray-800 dark:border-b-gray-600 border-b-gray-300 border-2 bg-white z-50">
             <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-0">
@@ -49,7 +66,7 @@ const Navbar = () => {
                             <h1 className='font-bold text-3xl md:text-4xl'>Logo</h1>
                         </div>
                     </Link>
-                    < div className='relative hidden md:block'>
+                    <div className='relative hidden md:block'>
                         <Input
                             type="text"
                             placeholder="Search..."
@@ -67,21 +84,59 @@ const Navbar = () => {
                     </ul>
                     <div className='flex'>
                         <Button onClick={() => dispatch(toggleTheme())}>
-                            {
-                                theme === 'light' ? <FaMoon /> : <FaSun />
-                            }
+                            {theme === 'light' ? <FaMoon /> : <FaSun />}
                         </Button>
                         {
-                            user ? <div className='ml-7 flex gap-3 items-center'>
-                                <Avatar>
-                                    <AvatarImage src="https://github.com/shadcn.png" />
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
-                                <Button onClick={logoutHandler}>LogOut</Button>
-                            </div> : <div className='ml-7 md:flex gap-2'>
-                                <Link to={"/login"}><Button>Login</Button></Link>
-                                <Link className='hidden md:block' to={"/signup"}><Button>Signup</Button></Link>
-                            </div>
+                            user ? (
+                                <div className='ml-7 flex gap-3 items-center'>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Avatar className="cursor-pointer">
+                                                <AvatarImage src={user.photoUrl || userLogo} />
+                                                <AvatarFallback>CN</AvatarFallback>
+                                            </Avatar>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="w-56 dark:bg-gray-800">
+                                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuGroup>
+                                                <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                                                    <User />
+                                                    <span>Profile</span>
+                                                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => navigate('/dashboard/your-blog')}>
+                                                    <ChartColumnBig />
+                                                    <span>Your Blog</span>
+                                                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => navigate('/dashboard/comments')}>
+                                                    <LiaCommentSolid />  {/*  Now imported */}
+                                                    <span>Comments</span>
+                                                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => navigate('/dashboard/write-blog')}>
+                                                    <FaRegEdit />  {/*  Now imported */}
+                                                    <span>Write Blog</span>
+                                                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuGroup>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem onClick={logoutHandler}>
+                                                <LogOut />
+                                                <span>Log out</span>
+                                                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <Button onClick={logoutHandler}>LogOut</Button>
+                                </div>
+                            ) : (
+                                <div className='ml-7 md:flex gap-2'>
+                                    <Link to={"/login"}><Button>Login</Button></Link>
+                                    <Link className='hidden md:block' to={"/signup"}><Button>Signup</Button></Link>
+                                </div>
+                            )
                         }
                     </div>
                 </nav>
