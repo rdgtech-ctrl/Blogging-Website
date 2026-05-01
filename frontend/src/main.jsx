@@ -3,18 +3,22 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { Provider } from 'react-redux'
-import store from './redux/store.js'
+import store, { persistor } from './redux/store.js'  // ✅ import persistor from store directly
 import { Toaster } from 'sonner'
-import { ThemeProvider } from 'next-themes'
+import ThemeProvider from './components/ThemeProvider.jsx'  // ✅ your custom ThemeProvider, not next-themes
+import { PersistGate } from 'redux-persist/integration/react'
 
+// ✅ removed: persistStore(store) called twice — already done in store.js
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider store={store}> {/*makes Redux available to every component*/}
-      <ThemeProvider>{/*applies light/dark class to entire app*/}
-        <App />
-      </ThemeProvider>
-      <Toaster />
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider>
+          <App />
+          <Toaster />  {/* ✅ moved inside ThemeProvider so it gets the theme */}
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
   </StrictMode>,
 )
