@@ -1,0 +1,1 @@
+// A Data URI is a way to embed file data directly into a string instead of linking to an external file
