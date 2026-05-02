@@ -3,6 +3,7 @@ import { isAuthenticated } from "../middleware/isAuthenticated.js";
 import { singleUpload } from "../middleware/multer.js";
 import {
   createBlog,
+  deleteBlog,
   getOwnBlogs,
   updateBlog,
 } from "../controllers/blog.controller.js";
@@ -12,5 +13,6 @@ const router = express.Router();
 router.route("/").post(isAuthenticated, createBlog);
 router.route("/:blogId").put(isAuthenticated, singleUpload, updateBlog);
 router.route("/get-own-blogs").get(isAuthenticated, getOwnBlogs);
+router.route("/delete/:id").delete(isAuthenticated,deleteBlog)
 
 export default router;
