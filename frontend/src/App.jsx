@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import CreateBlog from './pages/CreateBlog'
 import Comments from './pages/Comments'
+import UpdateBlog from './pages/UpdateBlog'
 import YourBlog from './pages/YourBlog'
 
 
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
         <Signup />
       </>
   }, {
-    path: "/Dashboard",
+    path: "/dashboard",
     element: <><Navbar /><Dashboard /></>,
     children: [
       {
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
         path: "write-blog",
         element: <CreateBlog />
       },
+      {
+        path:"write-blog/:blogId",
+        element:<UpdateBlog/>
+      }
     ]
   }
 

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./database/db.js";
 import userRoute from "./routes/user.route.js";
+import blogRoute from "./routes/blog.route.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -13,14 +14,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/blog", blogRoute);
 
 connectDB();
 
@@ -29,4 +33,3 @@ app.listen(PORT, () => {
 });
 // runs the code inside your db.js file, which does this:
 // opens a connection betweeen your Express server and your MongoDB Atlas database.Without it , your app has no database connection
-
