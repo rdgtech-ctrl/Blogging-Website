@@ -5,6 +5,7 @@ import {
   register,
   getProfile,
   updateProfile,
+  getAllUsers,
 } from "../controllers/user.controller.js";
 //  The Backend Framework
 // Acts as the middleman between your frontend(React) and your database (MongoDB). It creates API routes that React can all.
@@ -20,5 +21,7 @@ router.get("/getprofile", getProfile);
 router
   .route("/profile/update")
   .put(isAuthenticated, singleUpload, updateProfile);
+
+router.route("/all-users").get(getAllUsers)  
 
 export default router;

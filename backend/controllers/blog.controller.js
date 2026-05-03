@@ -143,7 +143,7 @@ export const getPublishedBlog = async (req, res) => {
       .sort({
         createdAt: -1,
       })
-      .populate({ path: "author", select: "firstName lastName photUrl" });
+      .populate({ path: "author", select: "firstName lastName photoUrl" });
     if (!blogs) {
       return res.status(401).json({
         message: "Blogs not found",
