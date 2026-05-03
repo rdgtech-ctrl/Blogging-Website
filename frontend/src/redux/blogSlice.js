@@ -5,7 +5,7 @@ const blogSlice = createSlice({
     initialState:{
         // This is the global state - that holds loading and user for the entire app.This is the global box
         loading:false,
-        blog:null // stores all blogs globally
+        blog:[] // stores all blogs globally
     },
     reducers:{
         //actions

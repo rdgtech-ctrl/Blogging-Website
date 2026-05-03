@@ -83,7 +83,7 @@ const YourBlog = () => {
                 <TableRow key={index}>
                   <TableCell className="flex gap-4 items-center">
                     <img src={item.thumbnail} className="w-20 rounded-md hidden md:block" alt="" />
-                    <h1 className="hover:underline cursor-pointer">{item.title}</h1>
+                    <h1 onClick={()=>navigate(`/blogs/${item._id}`)}className="hover:underline cursor-pointer">{item.title}</h1>
                   </TableCell>
                   <TableCell>{item.category}</TableCell>
                   <TableCell>{formatDate(index)}</TableCell>

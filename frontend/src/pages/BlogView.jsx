@@ -1,0 +1,171 @@
+// ✅ Clean correct imports
+import React, { useEffect, useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useParams, Link } from 'react-router-dom'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Bookmark, Loader2, MessageSquare, Share2 } from 'lucide-react'
+import { setBlog } from '@/redux/blogSlice'
+import axios from 'axios'
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { FaRegHeart } from 'react-icons/fa'
+import { toast } from 'sonner'
+
+const BlogView = () => {
+    const dispatch = useDispatch()
+    const params = useParams()
+    const blogId = params.blogId
+    const { blog } = useSelector(store => store.blog)
+    const selectedBlog = blog?.find(b => b._id === blogId)
+    const [blogLike, setBlogLike] = useState(selectedBlog.likes.length)
+    const [liked, setLiked] = useState(selectedBlog.likes.includes(User._id) || false)
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            const res = await axios.get('http://localhost:8000/api/v1/blog/all', {
+                withCredentials: true
+            })
+            dispatch(setBlog(res.data.blogs))
+        }
+        if (!blog || blog.length === 0) {
+            fetchBlogs()
+        }
+    }, [])
+
+    if (!selectedBlog) return (
+        <div className="flex items-center justify-center h-screen">
+            <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+        </div>
+    )
+
+    const changeTimeFormat = (isDate) => {
+        const date = new Date(isDate)
+        const options = { day: 'numeric', month: 'long', year: 'numeric' }
+        return date.toLocaleDateString('en-GB', options)
+    }
+
+    // ✅ handleShare only contains share logic, no return inside
+    const handleShare = (blogId) => {
+        const blogUrl = `${window.location.origin}/blogs/${blogId}`
+        if (navigator.share) {
+            navigator.share({
+                title: "Check out this blog!",
+                text: "Read this amazing blog post",
+                url: blogUrl,
+            }).then(() => console.log("Shared successfully")
+            ).catch((err) => console.error("Error Sharing:", err))
+        } else {
+            navigator.clipboard.writeText(blogUrl).then(() => {
+                toast.success("Blog Link copied to clipboard")
+            })
+        }
+    }
+
+    const likeOrDislikeHandler = async () => {
+        try {
+            const action = liked ? "dislike" : "like"
+            const res = await axios.get(`http://localhost:8000/api/v1/blog/${selectedBlog._id}/${action}`, { withCredentials: true })
+            //{withCredentials:true} It sends your login cookies with the request so the backend knows who you are.
+            if (res.data.success) {
+                const updatedLikes = liked ? blogLike - 1 : blogLike + 1
+                setBlogLike(updatedLikes)
+                toast.error(!liked)
+            }
+            const updatedBlogData = blog.map(p => p._id === selectedBlog._id ? {
+                ...p,
+                likes:liked?p.likes.filter(id => id !== User._id): [...p.likes,User._id]
+            }: p
+        )
+        toast.success(res.data.message)
+        dispatch(setBlog(updatedBlogData))
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }
+    }
+
+    return (
+        <div className="pt-14">
+            <div className='max-w-6xl mx-auto p-10'>
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link to="/">Home</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link to="/blogs">Blogs</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>{selectedBlog?.title}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+                {/* blog header */}
+                <div className="my-8">
+                    <h1 className='text-4xl font-bold tracking-tight mb-4'>{selectedBlog?.title}</h1>
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center space-x-4">
+                            <Avatar>
+                                <AvatarImage src={selectedBlog?.author?.photoUrl} alt="author" />
+                                <AvatarFallback>TS</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-medium">{selectedBlog.author.firstName} {selectedBlog.author.lastName}</p>
+                            </div>
+                        </div>
+                        {/* ✅ Fixed classNamed typo → className */}
+                        <p className='text-sm text-muted-foreground'>Published on {changeTimeFormat(selectedBlog.createdAt)} • 8 min read</p>
+                    </div>
+                </div>
+                {/* featured image */}
+                <div className="mb-8 rounded-lg overflow-hidden">
+                    <img src={selectedBlog.thumbnail} alt="thumbnail" width={1000} height={500} className='w-full object-cover' />
+                    <p className='text-sm text-muted-foreground mt-2 italic'>{selectedBlog.subtitle}</p>
+                </div>
+                <p dangerouslySetInnerHTML={{ __html: selectedBlog.description }} />
+                {/* engagement */}
+                <div className="flex items-center justify-between border-y dark:border-gray-800 border-gray-300 py-4 mb-8">
+                    <div className='flex items-center space-x-4'>
+                        <Button variant='ghost' className="flex items-center gap-1">
+                            <FaRegHeart size={24} className='cursor-pointer hover:text-gray-600 text-white' />
+                            <span>0</span>
+                        </Button>
+                        <Button variant="ghost">
+                            <MessageSquare className='h-4 w-4' />
+                            <span>1 Comments</span>
+                        </Button>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Button variant='ghost' size="sm">
+                            <Bookmark className="w-4 h-4" />
+                        </Button>
+                        <Button onClick={() => handleShare(selectedBlog._id)} variant='ghost' size="sm">
+                            <Share2 className='w-4 h-4' />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default BlogView

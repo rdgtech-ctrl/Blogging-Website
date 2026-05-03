@@ -12,6 +12,7 @@ import CreateBlog from './pages/CreateBlog'
 import Comments from './pages/Comments'
 import UpdateBlog from './pages/UpdateBlog'
 import YourBlog from './pages/YourBlog'
+import BlogView from './pages/BlogView'
 
 
 const router = createBrowserRouter([
@@ -50,7 +51,16 @@ const router = createBrowserRouter([
         <Navbar />
         <Signup />
       </>
-  }, {
+  },
+  {
+    path: "/blogs/:blogId",
+    element:
+      <>
+        <Navbar />
+        <BlogView />
+      </>
+  },
+  {
     path: "/dashboard",
     element: <><Navbar /><Dashboard /></>,
     children: [
@@ -71,8 +81,8 @@ const router = createBrowserRouter([
         element: <CreateBlog />
       },
       {
-        path:"write-blog/:blogId",
-        element:<UpdateBlog/>
+        path: "write-blog/:blogId",
+        element: <UpdateBlog />
       }
     ]
   }
