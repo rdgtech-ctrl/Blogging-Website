@@ -163,7 +163,8 @@ export const getPublishedBlog = async (req, res) => {
 export const togglePublishBlog = async (req, res) => {
   try {
     const { blogId } = req.params;
-    const { publish } = req.query; //  true/false
+    // const { publish } = req.query;
+     //  true/false
 
     const blog = await Blog.findById(blogId);
     if (!blog) {

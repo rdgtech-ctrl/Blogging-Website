@@ -28,7 +28,8 @@ const UpdateBlog = () => {
     const dispatch = useDispatch()
     const params = useParams()
     const id = params.blogId
-    const { blog,loading } = useSelector(store => store.blog)
+    const { blog, loading } = useSelector(store => store.blog)
+    const [publish, setPublish] = useState(false)
 
     // ✅ Fix 3: Guard check - wait until blog loads
     if (!blog) return <p>Loading...</p>
@@ -100,6 +101,40 @@ const UpdateBlog = () => {
         }
     }
 
+    const togglePublishUnpublish = async () => {
+        try {
+            const res = await axios.patch(`http://localhost:8000/api/v1/blog/${id}`, {
+                // params: {
+                //     action
+                // },
+                withCredentials: true
+            })
+            if (res.data.success) {
+                setPublish(!publish)
+                toast.success(res.data.message)
+                navigate('/dashboard/your-blog')
+            } else {
+                toast.error("failed to update")
+            }
+        } catch (error) {
+
+        }
+    }
+
+    const deleteBlog = async () => {
+        try {
+            const res = await axios.delete(`http://localhost:8000/api/v1/blog/delete/${id}`, { withCredentials: true })
+            if (res.data.success) {
+                const updatedBlogData = blog.filter((blogItem) => blogItem?._id !== id)
+                dispatch(setBlog(updatedBlogData))
+                toast.success(res.data.message)
+                navigate('/dashboard/your-blog')
+            }
+        } catch (error) {
+            toast.error("Something went error")
+        }
+    }
+
     return (
         <div className="md:ml-[320px] pt-20 px-3 pb-10">
             <div className="max-w-6xl mx-auto mt-8">
@@ -107,8 +142,12 @@ const UpdateBlog = () => {
                     <h1 className='text-4xl font-bold'>Basic Blog Information</h1>
                     <p>Make changes to your blogs here. Click publish when you are done</p>
                     <div className='space-x-2'>
-                        <Button onClick={updateBlogHandler}>Publish</Button>
-                        <Button variant='destructive'>Remove Blog</Button>
+                        <Button onClick={() => togglePublishUnpublish(selectBlog.isPublished ? "false" : "true")}>
+                            {
+                                selectBlog?.isPublished ? "UnPublish" : "Publish"
+                            }
+                        </Button>
+                        <Button onClick={deleteBlog} variant='destructive'>Remove Blog</Button>
                     </div>
                     <div className='pt-10'>
                         <Label className="mb-2">Title</Label>

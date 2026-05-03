@@ -1,4 +1,3 @@
-// ✅ Clean correct imports
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useParams, Link } from 'react-router-dom'
@@ -22,7 +21,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FaRegHeart } from 'react-icons/fa'
+import { FaRegHeart, FaHeart } from 'react-icons/fa' // ✅ FaHeart added
 import { toast } from 'sonner'
 
 const BlogView = () => {
@@ -30,9 +29,12 @@ const BlogView = () => {
     const params = useParams()
     const blogId = params.blogId
     const { blog } = useSelector(store => store.blog)
+    const { user } = useSelector(store => store.auth)
     const selectedBlog = blog?.find(b => b._id === blogId)
-    const [blogLike, setBlogLike] = useState(selectedBlog.likes.length)
-    const [liked, setLiked] = useState(selectedBlog.likes.includes(User._id) || false)
+
+    // ✅ Safe useState with optional chaining — won't crash if selectedBlog is undefined
+    const [blogLike, setBlogLike] = useState(selectedBlog?.likes?.length || 0)
+    const [liked, setLiked] = useState(selectedBlog?.likes?.includes(user?._id) || false)
 
     useEffect(() => {
         const fetchBlogs = async () => {
@@ -46,6 +48,7 @@ const BlogView = () => {
         }
     }, [])
 
+    // ✅ Loading check AFTER useState hooks
     if (!selectedBlog) return (
         <div className="flex items-center justify-center h-screen">
             <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
@@ -58,7 +61,6 @@ const BlogView = () => {
         return date.toLocaleDateString('en-GB', options)
     }
 
-    // ✅ handleShare only contains share logic, no return inside
     const handleShare = (blogId) => {
         const blogUrl = `${window.location.origin}/blogs/${blogId}`
         if (navigator.share) {
@@ -79,19 +81,17 @@ const BlogView = () => {
         try {
             const action = liked ? "dislike" : "like"
             const res = await axios.get(`http://localhost:8000/api/v1/blog/${selectedBlog._id}/${action}`, { withCredentials: true })
-            //{withCredentials:true} It sends your login cookies with the request so the backend knows who you are.
             if (res.data.success) {
                 const updatedLikes = liked ? blogLike - 1 : blogLike + 1
                 setBlogLike(updatedLikes)
-                toast.error(!liked)
+                setLiked(!liked) // ✅ toggle liked state (was toast.error(!liked) before)
             }
             const updatedBlogData = blog.map(p => p._id === selectedBlog._id ? {
                 ...p,
-                likes:liked?p.likes.filter(id => id !== User._id): [...p.likes,User._id]
-            }: p
-        )
-        toast.success(res.data.message)
-        dispatch(setBlog(updatedBlogData))
+                likes: liked ? p.likes.filter(id => id !== user._id) : [...p.likes, user._id]
+            } : p)
+            toast.success(res.data.message)
+            dispatch(setBlog(updatedBlogData))
         } catch (error) {
             toast.error(error.response.data.message)
         }
@@ -132,7 +132,6 @@ const BlogView = () => {
                                 <p className="font-medium">{selectedBlog.author.firstName} {selectedBlog.author.lastName}</p>
                             </div>
                         </div>
-                        {/* ✅ Fixed classNamed typo → className */}
                         <p className='text-sm text-muted-foreground'>Published on {changeTimeFormat(selectedBlog.createdAt)} • 8 min read</p>
                     </div>
                 </div>
@@ -145,9 +144,14 @@ const BlogView = () => {
                 {/* engagement */}
                 <div className="flex items-center justify-between border-y dark:border-gray-800 border-gray-300 py-4 mb-8">
                     <div className='flex items-center space-x-4'>
-                        <Button variant='ghost' className="flex items-center gap-1">
-                            <FaRegHeart size={24} className='cursor-pointer hover:text-gray-600 text-white' />
-                            <span>0</span>
+                        <Button onClick={likeOrDislikeHandler} variant='ghost' className="flex items-center gap-1">
+                            {/* ✅ Only one heart icon, no duplicate */}
+                            {
+                                liked
+                                    ? <FaHeart size={24} className='cursor-pointer text-red-600' />
+                                    : <FaRegHeart size={24} className="cursor-pointer hover:text-gray-600 text-white" />
+                            }
+                            <span>{blogLike}</span> {/* ✅ Only one count */}
                         </Button>
                         <Button variant="ghost">
                             <MessageSquare className='h-4 w-4' />
